@@ -256,6 +256,10 @@
       $('pips' + c).textContent = T('pips') + ': ' + E.pips(G.state, c);
       $('off' + c).innerHTML = T('borneOff') + ' <b>' + G.state.off[c] + '</b>/15' + (G.state.bar[c] ? '<br>' + T('onBar') + ' <b>' + G.state.bar[c] + '</b>' : '');
       $('card' + c).classList.toggle('active', G.phase !== 'over' && G.turn === c);
+      var photo = G.mode === 'cpu' && c === 1 && TZ.avatars && TZ.avatars[G.cpuName % 3];
+      var sw = $('card' + c).querySelector('.swatch');
+      sw.classList.toggle('photo', !!photo);
+      sw.style.backgroundImage = photo ? 'url(' + photo + ')' : '';
     });
     if (!G.rolling) renderDice();
     $('status').textContent = statusText();

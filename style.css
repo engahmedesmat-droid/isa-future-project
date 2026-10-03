@@ -147,6 +147,7 @@ main { padding: 0 max(16px, env(safe-area-inset-left)) 32px max(16px, env(safe-a
 .swatch { width: 34px; height: 34px; border-radius: 50%; border: 3px solid; }
 .swatch.s0 { background: radial-gradient(circle at 35% 30%, var(--ice-1), var(--ice-2)); border-color: var(--ice-rim); }
 .swatch.s1 { background: radial-gradient(circle at 35% 30%, var(--sap-1), var(--sap-2)); border-color: var(--sap-rim); }
+.swatch.photo { width: 52px; height: 52px; background-size: cover; background-position: center; border-color: var(--sap-rim); }
 .pname { font-weight: 700; color: var(--ice); }
 .pstat { font-size: 13px; color: var(--muted); }
 .poff { font-size: 13px; color: var(--muted); text-align: end; white-space: nowrap; }
