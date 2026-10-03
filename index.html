@@ -16,6 +16,7 @@
     <span id="brandName">ISA Future Project</span>
   </button>
   <div class="tools">
+    <button class="icon-btn" id="musicBtn" type="button" aria-label="أغاني أم كلثوم" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
     <button class="icon-btn" id="soundBtn" type="button" aria-label="Sound" aria-pressed="true"></button>
     <button class="btn ghost small hidden" id="menuBtn" type="button" data-i18n="menu">Menu</button>
   </div>
@@ -83,6 +84,11 @@
   </section>
 </main>
 
+<div class="music" id="music" hidden>
+  <div class="mhead" data-i18n="musicTitle"></div>
+  <div id="ytp"></div>
+</div>
+
 <div class="overlay hidden" id="overlay">
   <div class="dialog" role="dialog" aria-modal="true">
     <div class="trophy" aria-hidden="true">
@@ -102,6 +108,7 @@
 <script src="js/i18n.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/avatars.js"></script>
+<script src="js/music.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>
