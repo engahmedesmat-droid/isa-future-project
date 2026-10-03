@@ -452,8 +452,7 @@
   var SND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>';
 
   function applyLang() {
-    I.setLang(settings.lang);
-    $('langSel').value = settings.lang;
+    I.setLang('ar');
     document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = T(el.getAttribute('data-i18n')); });
     document.title = T('title');
     $('brandName').textContent = T('title');
@@ -481,7 +480,6 @@
 
   function init() {
     applyLang(); applySound();
-    $('langSel').onchange = function (e) { settings.lang = e.target.value; save(); applyLang(); };
     $('soundBtn').onclick = function () { settings.muted = !settings.muted; save(); applySound(); A.tick(); };
     $('playBtn').onclick = function () { A.unlock(); startGame(); };
     $('menuBtn').onclick = toMenu;
@@ -492,7 +490,7 @@
     $('undoBtn').onclick = undo;
     $('board').addEventListener('click', onBoardClick);
     document.addEventListener('keydown', function (e) {
-      if (!G || e.target.tagName === 'SELECT') return;
+      if (!G) return;
       if ((e.key === ' ' || e.key === 'Enter') && G.phase === 'roll' && isHuman(G.turn) && !G.busy && document.activeElement === document.body) { e.preventDefault(); rollDice(); }
       if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) { e.preventDefault(); undo(); }
     });
