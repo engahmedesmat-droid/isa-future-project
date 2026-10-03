@@ -9,8 +9,16 @@
   var VW = 1060, PW = 72, XL = 40, XR = 536, TOPY = 30, BOTY = 610, PH = 250, R = 30;
   var BARX = 504, TRAYX = 1006, MIDY = 320;
 
+  // ---- opponents: each one is a fixed difficulty level ----
+  var OPPS = [
+    { id: 'esmat', idx: 0, diff: 'easy' },
+    { id: 'yasser', idx: 2, diff: 'normal' },
+    { id: 'abdelazim', idx: 1, diff: 'hard' }
+  ];
+  function oppById(id) { return OPPS.filter(function (o) { return o.id === id; })[0] || OPPS[1]; }
+
   // ---- settings ----
-  var settings = { variant: '3ada', mode: 'cpu', diff: 'normal', lang: 'ar', muted: false };
+  var settings = { variant: '3ada', mode: 'cpu', opp: 'yasser', lang: 'ar', muted: false };
   try { Object.assign(settings, JSON.parse(localStorage.getItem('tz-settings') || '{}')); } catch (e) { /* storage blocked */ }
   function save() { try { localStorage.setItem('tz-settings', JSON.stringify(settings)); } catch (e) { /* ignore */ } }
 
@@ -62,7 +70,7 @@
     var cls = 'chk' + (extra && extra.prisoner ? ' prisoner' : '');
     var fill = c === 0 ? 'url(#gIce)' : 'url(#gSap)';
     var rim = c === 0 ? 'var(--ice-rim)' : 'var(--sap-rim)';
-    var core = c === 0 ? 'rgba(23,71,168,.55)' : 'rgba(168,210,255,.75)';
+    var core = c === 0 ? 'rgba(232,244,255,.8)' : 'rgba(23,71,168,.55)';
     var s = '<g class="' + cls + '" transform="translate(' + x + ' ' + y + ')"' + (extra && extra.prisoner ? ' opacity=".78"' : '') + '>' +
       '<circle r="' + R + '" fill="' + fill + '" stroke="' + rim + '" stroke-width="3"' + (extra && extra.prisoner ? ' stroke-dasharray="5 4"' : '') + '/>' +
       '<circle r="21" fill="none" stroke="' + core + '" stroke-width="1.5"/>' +
@@ -85,8 +93,8 @@
     h.push(
       '<defs>' +
       '<linearGradient id="gFrame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a56b8"/><stop offset="1" stop-color="#0a1d47"/></linearGradient>' +
-      '<radialGradient id="gIce" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#bfdcff"/></radialGradient>' +
-      '<radialGradient id="gSap" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#3a63d8"/><stop offset="1" stop-color="#06185a"/></radialGradient>' +
+      '<radialGradient id="gIce" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#6aa5ff"/><stop offset="1" stop-color="#1747a8"/></radialGradient>' +
+      '<radialGradient id="gSap" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d4e6ff"/></radialGradient>' +
       '<linearGradient id="gFelt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c2660"/><stop offset="1" stop-color="#071a45"/></linearGradient>' +
       '</defs>' +
       '<rect x="0" y="0" width="' + VW + '" height="640" rx="26" fill="url(#gFrame)"/>' +
@@ -256,9 +264,12 @@
       $('pips' + c).textContent = T('pips') + ': ' + E.pips(G.state, c);
       $('off' + c).innerHTML = T('borneOff') + ' <b>' + G.state.off[c] + '</b>/15' + (G.state.bar[c] ? '<br>' + T('onBar') + ' <b>' + G.state.bar[c] + '</b>' : '');
       $('card' + c).classList.toggle('active', G.phase !== 'over' && G.turn === c);
-      var photo = G.mode === 'cpu' && c === 1 && TZ.avatars && TZ.avatars[G.cpuName % 3];
+      var isOpp = G.mode === 'cpu' && c === 1;
+      var photo = isOpp && TZ.avatars && TZ.avatars[G.oppId];
       var sw = $('card' + c).querySelector('.swatch');
       sw.classList.toggle('photo', !!photo);
+      sw.classList.toggle('initial', isOpp && !photo);
+      sw.textContent = isOpp && !photo ? playerName(c).charAt(0) : '';
       sw.style.backgroundImage = photo ? 'url(' + photo + ')' : '';
     });
     if (!G.rolling) renderDice();
@@ -276,10 +287,10 @@
   // =========================================================
   function startGame() {
     G = {
-      variant: settings.variant, mode: settings.mode, diff: settings.diff,
+      variant: settings.variant, mode: settings.mode, diff: oppById(settings.opp).diff, oppId: oppById(settings.opp).id,
       state: E.newState(settings.variant), turn: Math.random() < 0.5 ? 0 : 1,
       phase: 'roll', dice: null, rem: [], legal: [], sel: null, hist: [], busy: false,
-      hide: null, notice: '', rolling: false, cpuName: Math.floor(Math.random() * 3)
+      hide: null, notice: '', rolling: false, cpuName: oppById(settings.opp).idx
     };
     $('menu').classList.add('hidden');
     $('game').classList.remove('hidden');
@@ -437,8 +448,32 @@
       games.appendChild(b);
     });
     seg($('optMode'), [['cpu', 'vsCpu'], ['local', 'vsLocal']], 'mode');
-    seg($('optDiff'), [['easy', 'easy'], ['normal', 'normal'], ['hard', 'hard']], 'diff');
+    buildOpps();
     $('diffField').classList.toggle('hidden', settings.mode !== 'cpu');
+  }
+
+  function avatarFill(el, id, name) {
+    var photo = TZ.avatars && TZ.avatars[id];
+    if (photo) { el.style.backgroundImage = 'url(' + photo + ')'; el.classList.add('photo'); }
+    else { el.classList.add('initial'); el.textContent = name.charAt(0); }
+  }
+
+  function buildOpps() {
+    var box = $('optOpp');
+    box.innerHTML = '';
+    OPPS.forEach(function (o) {
+      var name = I.cpuNameAt(o.idx);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'opp';
+      b.setAttribute('aria-pressed', String(settings.opp === o.id));
+      var av = document.createElement('span'); av.className = 'oav';
+      avatarFill(av, o.id, name);
+      var nm = document.createElement('b'); nm.textContent = name;
+      var lv = document.createElement('span'); lv.className = 'lvl ' + o.diff; lv.textContent = T(o.diff);
+      b.appendChild(av); b.appendChild(nm); b.appendChild(lv);
+      b.onclick = function () { settings.opp = o.id; save(); buildMenu(); };
+      box.appendChild(b);
+    });
   }
 
   function seg(el, opts, key) {
