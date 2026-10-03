@@ -520,7 +520,7 @@
   function init() {
     applyLang(); applySound();
     $('soundBtn').onclick = function () { settings.muted = !settings.muted; save(); applySound(); A.tick(); };
-    $('playBtn').onclick = function () { A.unlock(); if (TZ.music) TZ.music.start(); startGame(); };
+    $('playBtn').onclick = function () { A.unlock(); startGame(); };
     $('menuBtn').onclick = toMenu;
     $('brandBtn').onclick = function () { if (G) toMenu(); };
     $('toMenuBtn').onclick = toMenu;
